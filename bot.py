@@ -1,7 +1,8 @@
 import os
 import random
+import re
 import requests
-from bs4 import BeautifulSoup
+
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
@@ -13,28 +14,22 @@ def fetch_questions(url):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
+            html_content = response.text
             questions = []
 
-            # Находим все элементы с классом 'question'
-            question_divs = soup.find_all('div', class_='question')
+            # Паттерн для поиска вопросов и ответов
+            pattern = r'<div class="question">(.*?)</div>.*?<div class="answer">(.*?)</div>'
+            matches = re.findall(pattern, html_content, re.DOTALL)
 
-            for question_div in question_divs:
-                question_text = question_div.text.strip()
-                answers = []
+            for match in matches:
+                question_text = match[0].strip()
+                answers = [answer.strip() for answer in match[1].split("<div class=\"answer\">") if answer.strip()]
+                correct_answer = None
 
-                # Находим следующие элементы с классом 'answer'
-                answer_divs = question_div.find_next_siblings('div', class_='answer')
-                for answer_div in answer_divs:
-                    answer_text = answer_div.text.strip()
-                    answers.append(answer_text)
-
-                # Находим правильный ответ с классом 'prav'
-                correct_answer_div = question_div.find_next_sibling('div', class_='prav')
-                if correct_answer_div:
-                    correct_answer = correct_answer_div.text.replace("Правильный ответ: :", "").strip()
-                else:
-                    correct_answer = None
+                # Находим правильный ответ
+                for answer in answers:
+                    if "<div class=\"prav\">" in answer:
+                        correct_answer = re.sub(r"<.*?>", "", answer).strip()
 
                 questions.append({
                     "question": question_text,
@@ -79,7 +74,7 @@ def check_answer(update, context):
         update.message.reply_text("Чтобы проверить ответ, сначала задайте вопрос командой /ask.")
 
 def main():
-    updater = Updater(TOKEN, use_context=True) 
+    updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
