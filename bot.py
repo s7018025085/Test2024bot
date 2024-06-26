@@ -6,7 +6,7 @@ bot = telebot.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id, "Привет! Я бот на Heroku.")
+    bot.send_message(message.chat.id, "Привет! Я бот на Railway.")
 
 @bot.message_handler(commands=['quiz'])
 def quiz(message):
