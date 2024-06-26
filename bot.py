@@ -78,6 +78,7 @@ def ask_question(update, context):
 
 
 
+
 def check_answer(update, context):
     user_answer = update.message.text.strip().lower()
     current_question = context.user_data.get('current_question')
