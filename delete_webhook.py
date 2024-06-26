@@ -7,3 +7,13 @@ bot = telebot.TeleBot(API_TOKEN)
 
 bot.remove_webhook()
 print("Webhook removed.")
+
+
+import telebot
+import os
+
+API_TOKEN = os.getenv('API_TOKEN')
+
+bot = telebot.TeleBot(API_TOKEN)
+bot.remove_webhook()
+print("Webhook removed")
