@@ -50,7 +50,7 @@ def start(update, context):
 
 def ask_question(update, context):
     questions = fetch_questions(QUESTIONS_URL)
-    if questions:
+    if questions: 
         random_question = random.choice(questions)
         context.user_data['current_question'] = random_question
         question_text = random_question['question']
