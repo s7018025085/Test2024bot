@@ -79,7 +79,7 @@ def check_answer(update, context):
         update.message.reply_text("Чтобы проверить ответ, сначала задайте вопрос командой /ask.")
 
 def main():
-    updater = Updater(TOKEN, use_context=True)
+    updater = Updater(TOKEN, use_context=True) 
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
