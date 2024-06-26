@@ -9,7 +9,7 @@ bot = telebot.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "Welcome to the Quiz Bot! Use /quiz to get a question.")
+    bot.reply_to(message, "Добро пожаловать в бот тестирование! Используйте /quiz, чтобы получить вопрос.")
 
 @bot.message_handler(commands=['quiz'])
 def send_question(message):
