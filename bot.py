@@ -50,22 +50,23 @@ def start(update, context):
 
 def ask_question(update, context):
     questions = fetch_questions(QUESTIONS_URL)
-    if questions: 
+    if questions:
         random_question = random.choice(questions)
         context.user_data['current_question'] = random_question
         question_text = random_question['question']
         answers = random_question['answers']
-        
+
         # Формируем клавиатуру с вариантами ответов
         keyboard = []
         for i, answer in enumerate(answers, start=1):
             keyboard.append([KeyboardButton(f"{i}. {answer}")])
-        
+
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
 
         update.message.reply_text(question_text, reply_markup=reply_markup)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
+
 
 def check_answer(update, context):
     user_answer = update.message.text.strip().lower()
