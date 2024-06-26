@@ -48,6 +48,8 @@ def fetch_questions(url):
 def start(update, context):
     update.message.reply_text('Привет! Я бот, который готов к работе.')
 
+from telegram import ReplyKeyboardMarkup, KeyboardButton
+
 def ask_question(update, context):
     questions = fetch_questions(QUESTIONS_URL)
     if questions:
@@ -58,14 +60,15 @@ def ask_question(update, context):
 
         # Формируем клавиатуру с вариантами ответов
         keyboard = []
-        for i, answer in enumerate(answers, start=1):
-            keyboard.append([KeyboardButton(f"{i}. {answer}")])
+        for answer in answers:
+            keyboard.append([KeyboardButton(answer)])
 
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
 
         update.message.reply_text(question_text, reply_markup=reply_markup)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
+
 
 
 def check_answer(update, context):
