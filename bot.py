@@ -1,10 +1,9 @@
 import telebot
 import requests
-import random
 import os
 
-API_TOKEN ="7303306074:AAEMtjoNCucLezlv_f__79iMSlRqn7lP3JQ"  # Убедитесь, что токен настроен как переменная окружения
-QUESTIONS_URL = 'https://raw.githubusercontent.com/USERNAME/REPO/main/questions.json'  # Замените на ваш URL
+API_TOKEN="7303306074:AAEMtjoNCucLezlv_f__79iMSlRqn7lP3JQ"
+WEBHOOK_URL = "https://Test2024bot.up.railway.app/webhook" # URL вебхука с Railway
 
 bot = telebot.TeleBot(API_TOKEN)
 
@@ -33,4 +32,32 @@ def check_answer(message, question):
     except (ValueError, IndexError):
         bot.send_message(message.chat.id, "Please enter a valid option number.")
 
-bot.polling()
+@bot.route('/webhook', methods=['POST'])
+def webhook_handler():
+    if flask.request.headers.get('content-type') == 'application/json':
+        json_str = flask.request.get_data().decode('UTF-8')
+        update = telebot.types.Update.de_json(json_str)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        flask.abort(403)
+
+# Установка вебхука
+bot.remove_webhook()
+bot.set_webhook(url=WEBHOOK_URL)
+
+if __name__ == '__main__':
+    from flask import Flask, request
+    app = Flask(__name__)
+
+    @app.route('/webhook', methods=['POST'])
+    def webhook():
+        if request.headers.get('content-type') == 'application/json':
+            json_str = request.get_data().decode('UTF-8')
+            update = telebot.types.Update.de_json(json_str)
+            bot.process_new_updates([update])
+            return ''
+        else:
+            flask.abort(403)
+
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
