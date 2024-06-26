@@ -5,7 +5,6 @@ import requests
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO")
@@ -49,8 +48,6 @@ def fetch_questions(url):
 def start(update, context):
     update.message.reply_text('Привет! Я бот, который готов к работе.')
 
-from telegram import ReplyKeyboardMarkup, KeyboardButton
-
 def ask_question(update, context):
     questions = fetch_questions(QUESTIONS_URL)
     if questions:
@@ -66,7 +63,7 @@ def ask_question(update, context):
         
         # Формируем кнопки с номерами ответов
         keyboard = []
-        for i in range(1, len(answers) + 1):
+        for i, answer in enumerate(answers, start=1):
             keyboard.append([KeyboardButton(str(i))])
 
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
@@ -74,7 +71,6 @@ def ask_question(update, context):
         update.message.reply_text(message, reply_markup=reply_markup)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
-
 
 
 
