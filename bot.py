@@ -2,7 +2,7 @@ import os
 import random
 import re
 import requests
-
+from telegram import ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
@@ -52,8 +52,18 @@ def ask_question(update, context):
     questions = fetch_questions(QUESTIONS_URL)
     if questions:
         random_question = random.choice(questions)
-        context.user_data['current_question'] = random_question['question']
-        update.message.reply_text(random_question['question'])
+        context.user_data['current_question'] = random_question
+        question_text = random_question['question']
+        answers = random_question['answers']
+        
+        # Формируем клавиатуру с вариантами ответов
+        keyboard = []
+        for i, answer in enumerate(answers, start=1):
+            keyboard.append([KeyboardButton(f"{i}. {answer}")])
+        
+        reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+
+        update.message.reply_text(question_text, reply_markup=reply_markup)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
 
@@ -62,14 +72,18 @@ def check_answer(update, context):
     current_question = context.user_data.get('current_question')
     
     if current_question:
-        correct_answer = next((qd["correct_answer"].lower() for qd in context.user_data['questions'] if qd["question"].lower() == current_question.lower()), None)
-        if correct_answer:
-            if user_answer == correct_answer:
-                update.message.reply_text("Правильно!")
-            else:
-                update.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
-        else:
-            update.message.reply_text("Не удалось найти правильный ответ на текущий вопрос.")
+        correct_answer = current_question["correct_answer"].lower()
+        
+        # Проверяем ответ пользователя
+        for i, answer in enumerate(current_question['answers'], start=1):
+            if user_answer == f"{i}. {answer}".lower():
+                if user_answer == f"{i}. {correct_answer}":
+                    update.message.reply_text("Правильно!")
+                else:
+                    update.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
+                return
+        
+        update.message.reply_text("Выберите ответ из предложенных вариантов.")
     else:
         update.message.reply_text("Чтобы проверить ответ, сначала задайте вопрос командой /ask.")
 
