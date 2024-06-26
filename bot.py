@@ -1,7 +1,10 @@
 import os
 import random
 import requests
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
+from telegram.ext import Updater, CommandHandler, MessageHandler
+from telegram import Update, Bot, ChatAction, ParseMode
+from telegram.ext.filters import Filters
 
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
