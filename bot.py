@@ -5,6 +5,7 @@ import requests
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
+
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO")
