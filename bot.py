@@ -9,7 +9,7 @@ WEBHOOK_URL = "https://Test2024bot.up.railway.app/webhook" # URL вебхука 
 bot = telebot.TeleBot(API_TOKEN)
 app = Flask(__name__)
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start']) 
 def send_welcome(message):
     bot.reply_to(message, "Добро пожаловать в бот!")
 
