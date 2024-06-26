@@ -1,38 +1,31 @@
-import telebot
-from flask import Flask, request
 import os
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-API_TOKEN="7303306074:AAEMtjoNCucLezlv_f__79iMSlRqn7lP3JQ"
-WEBHOOK_URL = "https://Test2024bot.up.railway.app/webhook" # URL вебхука с Railway
+# Получаем токен бота из переменных окружения
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
+def start(update, context):
+    update.message.reply_text('Привет! Я бот, который готов к работе.')
 
-bot = telebot.TeleBot(API_TOKEN)
-app = Flask(__name__)
+def echo(update, context):
+    update.message.reply_text(update.message.text)
 
-@bot.message_handler(commands=['start']) 
-def send_welcome(message):
-    bot.reply_to(message, "Добро пожаловать в бот!")
+def main():
+    # Создаем экземпляр Updater и передаем токен бота
+    updater = Updater(TOKEN, use_context=True)
 
-@bot.message_handler(commands=['quiz'])
-def send_question(message):
-    # Ваша логика викторины здесь
-    pass
+    # Получаем диспетчер для регистрации обработчиков команд и сообщений
+    dp = updater.dispatcher
 
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    bot.reply_to(message, message.text)
+    # Регистрируем обработчик для команды /start
+    dp.add_handler(CommandHandler("start", start))
 
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    if request.headers.get('content-type') == 'application/json':
-        json_str = request.get_data().decode('utf-8')
-        update = telebot.types.Update.de_json(json_str)
-        bot.process_new_updates([update])
-        return ''
-    else:
-        return 'Неверный Content-Type'
+    # Регистрируем обработчик для эхо-ответов на текстовые сообщения
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+
+    # Запускаем бота
+    updater.start_polling()
+    updater.idle()
 
 if __name__ == '__main__':
-    bot.remove_webhook()
-    bot.set_webhook(url=WEBHOOK_URL)
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    main()
