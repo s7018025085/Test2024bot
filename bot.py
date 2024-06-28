@@ -44,7 +44,7 @@ def ask_question(update, context):
             update.message.reply_text("Извините, не удалось загрузить варианты ответов.")
             return
         
-        # Формируем сообщение с темой, номером вопроса, вопросом и ответами
+        # Формируем сообщение с темой, номером вопроса, вопросом и ответами 
         message = f"<b>Тема:</b> {theme} "
         message += f"<b>Вопрос {question_number}:\n {question_text}</b>\n\n"
         message += "\n".join(answers)
