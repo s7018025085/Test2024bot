@@ -7,7 +7,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-QUESTIONS_URL = "https://s7018025085.github.io/TelegramBotTest2024/test.json"  # Замените на ваш URL с JSON-файлом
+QUESTIONS_URL = "https://s7018025085.github.io/TelegramBotTest2024/questions.json"  # Замените на ваш URL с JSON-файлом
 
 def fetch_questions(url):
     try:
@@ -23,7 +23,7 @@ def fetch_questions(url):
         return None
 
 def start(update, context):
-    update.message.reply_text('Привет! Я бот, который готов к работе.')
+    update.message.reply_text('Привет! Я бот, который готов к работе. Используйте команду /ask для получения вопроса.')
 
 def ask_question(update, context):
     questions = fetch_questions(QUESTIONS_URL)
@@ -33,16 +33,11 @@ def ask_question(update, context):
         question_text = random_question['vopros']
         answers = [random_question.get(f'o{i}', '') for i in range(1, 6) if random_question.get(f'o{i}', '')]
 
-        # Формируем текст сообщения с вопросом и вариантами ответов
-        message = f"{question_text}\n\n"
-        for i, answer in enumerate(answers, start=1):
-            message += f"{i}. {answer}\n"
-
         # Формируем кнопки с текстовыми ответами
         keyboard = [[KeyboardButton(answer)] for answer in answers]
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
 
-        update.message.reply_text(message, reply_markup=reply_markup)
+        update.message.reply_text(question_text, reply_markup=reply_markup)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
 
@@ -57,6 +52,9 @@ def check_answer(update, context):
             update.message.reply_text("Правильно!")
         else:
             update.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
+        
+        # Сразу задаем следующий вопрос
+        ask_question(update, context)
     else:
         update.message.reply_text("Чтобы проверить ответ, сначала задайте вопрос командой /ask.")
 
