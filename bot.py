@@ -2,12 +2,12 @@ import os
 import random
 import json
 import requests
-from telegram import ReplyKeyboardMarkup, KeyboardButton
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-QUESTIONS_URL = "https://s7018025085.github.io/TelegramBotTest2024/test.json"  #  Замените на ваш URL с JSON-файлом
+QUESTIONS_URL = "https://s7018025085.github.io/TelegramBotTest2024/test.json"  # Замените на ваш URL с JSON-файлом
 
 def fetch_questions(url):
     try:
@@ -42,22 +42,21 @@ def ask_question(update, context):
             update.message.reply_text("Извините, не удалось загрузить варианты ответов.")
             return
         
-        # Формируем текст сообщения с вопросом и вариантами ответов
-        message = f"{question_text}\n\n"
+        # Формируем список кнопок с номерами ответов
+        keyboard = []
         for i, answer in enumerate(answers, start=1):
-            message += f"{i}. {answer}\n"
+            keyboard.append([InlineKeyboardButton(f"{i}. {answer}", callback_data=str(i))])
 
-        # Формируем кнопки с номерами ответов в один ряд
-        keyboard = [[KeyboardButton(str(i))] for i in range(1, len(answers) + 1)]
-        reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True, row_width=len(answers))
+        # Создаем разметку с кнопками
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
         # Отправляем сообщение с вопросом и кнопками ответов
-        update.message.reply_text(message, reply_markup=reply_markup)
+        update.message.reply_text(question_text, reply_markup=reply_markup)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
 
 def check_answer(update, context):
-    user_answer = update.message.text.strip()
+    user_answer = update.callback_query.data
     current_question = context.user_data.get('current_question')
 
     if current_question:
@@ -68,16 +67,16 @@ def check_answer(update, context):
             correct_answer = current_question["prav"].strip(":").strip()
 
             if selected_answer == correct_answer:
-                update.message.reply_text("Правильно!")
+                update.callback_query.message.reply_text("Правильно!")
             else:
-                update.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
+                update.callback_query.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
             
             # Сразу задаем следующий вопрос
-            ask_question(update, context)
+            ask_question(update.callback_query, context)
         except (ValueError, IndexError):
-            update.message.reply_text("Выберите ответ из предложенных вариантов.")
+            update.callback_query.message.reply_text("Выберите ответ из предложенных вариантов.")
     else:
-        update.message.reply_text("Чтобы проверить ответ, сначала задайте вопрос командой /ask.")
+        update.callback_query.message.reply_text("Чтобы проверить ответ, сначала задайте вопрос командой /ask.")
 
 def main():
     updater = Updater(TOKEN, use_context=True)
