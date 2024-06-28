@@ -35,6 +35,8 @@ def ask_question(update, context):
         random_question = random.choice(questions)
         context.user_data['current_question'] = random_question
         question_text = random_question['vopros']
+        theme = random_question['Thems']
+        question_number = random_question['id']
         answers = [(f"{i}. {random_question.get(f'o{i}', '')}") for i in range(1, 6) if random_question.get(f'o{i}', '')]
 
         # Проверяем, есть ли ответы
@@ -42,20 +44,21 @@ def ask_question(update, context):
             update.message.reply_text("Извините, не удалось загрузить варианты ответов.")
             return
         
-        # Формируем сообщение с вопросом и ответами
-        message = f"<b>{question_text}</b>\n\n"
+        # Формируем сообщение с темой, номером вопроса, вопросом и ответами
+        message = f"<b>Тема:</b> {theme}\n"
+        message += f"<b>Вопрос {question_number}:</b> {question_text}\n\n"
         message += "\n".join(answers)
 
-        # Формируем список кнопок с номерами ответов
+        # Формируем список кнопок с номерами ответов в одной строке
         keyboard = []
         for i in range(1, 6):
             if random_question.get(f'o{i}', ''):
-                keyboard.append([InlineKeyboardButton(f"{i}", callback_data=str(i))])
+                keyboard.append(InlineKeyboardButton(f"{i}", callback_data=str(i)))
 
         # Создаем разметку с кнопками
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        reply_markup = InlineKeyboardMarkup([keyboard])
 
-        # Отправляем сообщение с вопросом, ответами и кнопками ответов
+        # Отправляем сообщение с темой, вопросом, ответами и кнопками ответов
         update.message.reply_text(message, reply_markup=reply_markup, parse_mode='HTML')
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
