@@ -37,7 +37,7 @@ def ask_question(update, context):
         question_text = random_question['vopros']
         theme = random_question['Thems']
         question_number = random_question['id']
-        answers = [(f"{i}. {random_question.get(f'o{i}', '')}") for i in range(1, 6) if random_question.get(f'o{i}', '')]
+        answers = [(f"{i}.  {random_question.get(f'o{i}', '')}") for i in range(1, 6) if random_question.get(f'o{i}', '')]
 
         # Проверяем, есть ли ответы
         if not answers:
@@ -45,8 +45,8 @@ def ask_question(update, context):
             return
         
         # Формируем сообщение с темой, номером вопроса, вопросом и ответами
-        message = f"<b>Тема:</b> {theme}\n"
-        message += f"<b>Вопрос {question_number}:</b> {question_text}\n\n"
+        message = f"<b>Тема:</b> {theme} "
+        message += f"<b>Вопрос {question_number}:\n {question_text}</b>\n\n"
         message += "\n".join(answers)
 
         # Формируем список кнопок с номерами ответов в одной строке
