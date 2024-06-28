@@ -2,7 +2,7 @@ import os
 import random
 import json
 import requests
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
@@ -34,6 +34,7 @@ def ask_question(update, context):
     if questions:
         random_question = random.choice(questions)
         context.user_data['current_question'] = random_question
+        theme = random_question.get('Thems', 'Тема не указана')
         question_text = random_question['vopros']
         answers = [random_question.get(f'o{i}', '') for i in range(1, 6) if random_question.get(f'o{i}', '')]
 
@@ -50,8 +51,9 @@ def ask_question(update, context):
         # Создаем разметку с кнопками
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        # Отправляем сообщение с вопросом и кнопками ответов
-        update.message.reply_text(question_text, reply_markup=reply_markup)
+        # Формируем сообщение с темой, вопросом и кнопками ответов (с желтым фоном)
+        message = f"<b>Тема вопроса:</b> {theme}\n\n<b>{question_text}</b>"
+        update.message.reply_text(message, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
 
@@ -67,9 +69,13 @@ def check_answer(update, context):
             correct_answer = current_question["prav"].strip(":").strip()
 
             if selected_answer == correct_answer:
-                update.callback_query.message.reply_text("Правильно!")
+                # Правильный ответ (зеленый фон)
+                update.callback_query.message.reply_text(f"<b>Правильно!</b>\n\n<b>{current_question['vopros']}</b>",
+                                                         parse_mode=ParseMode.HTML, reply_markup=None)
             else:
-                update.callback_query.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
+                # Неправильный ответ (красный фон)
+                update.callback_query.message.reply_text(f"<b>Неправильно. Правильный ответ:</b> <i>{correct_answer}</i>\n\n<b>{current_question['vopros']}</b>",
+                                                         parse_mode=ParseMode.HTML, reply_markup=None)
             
             # Сразу задаем следующий вопрос
             ask_question(update.callback_query, context)
