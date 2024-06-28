@@ -47,9 +47,9 @@ def ask_question(update, context):
         for i, answer in enumerate(answers, start=1):
             message += f"{i}. {answer}\n"
 
-        # Формируем кнопки с номерами ответов
+        # Формируем кнопки с номерами ответов в один ряд
         keyboard = [[KeyboardButton(str(i))] for i in range(1, len(answers) + 1)]
-        reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+        reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True, row_width=len(answers))
 
         update.message.reply_text(message, reply_markup=reply_markup)
     else:
