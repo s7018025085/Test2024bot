@@ -7,7 +7,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-QUESTIONS_URL = "https://s7018025085.github.io/TelegramBotTest2024/questions.json"  # Замените на ваш URL с JSON-файлом
+QUESTIONS_URL = "https://s7018025085.github.io/TelegramBotTest2024/test.json"  # Замените на ваш URL с JSON-файлом
 
 def fetch_questions(url):
     try:
