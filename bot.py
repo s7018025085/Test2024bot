@@ -3,7 +3,7 @@ import random
 import json
 import requests
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
 # Получаем токен бота и ссылку на репозиторий из переменных окружения
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -84,7 +84,7 @@ def main():
 
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("ask", ask_question))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, check_answer))
+    dp.add_handler(CallbackQueryHandler(check_answer))
 
     updater.start_polling()
     updater.idle()
