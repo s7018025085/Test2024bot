@@ -13,12 +13,8 @@ def fetch_questions(url):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            try:
-                questions = json.loads(response.text)
-                return questions
-            except json.JSONDecodeError:
-                print("Error parsing JSON.")
-                return None
+            questions = json.loads(response.text)
+            return questions
         else:
             print(f"Failed to fetch data. Status code: {response.status_code}")
             return None
@@ -37,21 +33,11 @@ def ask_question(update, context):
         question_text = random_question['vopros']
         answers = [random_question.get(f'o{i}', '') for i in range(1, 6) if random_question.get(f'o{i}', '')]
 
-        # Проверяем, есть ли ответы
-        if not answers:
-            update.message.reply_text("Извините, не удалось загрузить варианты ответов.")
-            return
-        
-        # Формируем текст сообщения с вопросом и вариантами ответов
-        message = f"{question_text}\n\n"
-        for i, answer in enumerate(answers, start=1):
-            message += f"{i}. {answer}\n"
-
-        # Формируем кнопки с номерами ответов
-        keyboard = [[KeyboardButton(str(i))] for i in range(1, len(answers) + 1)]
+        # Формируем кнопки с текстовыми ответами
+        keyboard = [[KeyboardButton(answer)] for answer in answers]
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
 
-        update.message.reply_text(message, reply_markup=reply_markup)
+        update.message.reply_text(question_text, reply_markup=reply_markup)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
 
@@ -60,21 +46,15 @@ def check_answer(update, context):
     current_question = context.user_data.get('current_question')
 
     if current_question:
-        try:
-            answer_index = int(user_answer) - 1
-            answers = [current_question.get(f'o{i}', '') for i in range(1, 6) if current_question.get(f'o{i}', '')]
-            selected_answer = answers[answer_index] if 0 <= answer_index < len(answers) else None
-            correct_answer = current_question["prav"].strip(":").strip()
-
-            if selected_answer == correct_answer:
-                update.message.reply_text("Правильно!")
-            else:
-                update.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
-            
-            # Сразу задаем следующий вопрос
-            ask_question(update, context)
-        except (ValueError, IndexError):
-            update.message.reply_text("Выберите ответ из предложенных вариантов.")
+        correct_answer = current_question["prav"].strip(":").strip()
+        
+        if user_answer == correct_answer:
+            update.message.reply_text("Правильно!")
+        else:
+            update.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
+        
+        # Сразу задаем следующий вопрос
+        ask_question(update, context)
     else:
         update.message.reply_text("Чтобы проверить ответ, сначала задайте вопрос командой /ask.")
 
