@@ -38,8 +38,8 @@ def ask_question(update, context):
         for i, answer in enumerate(answers, start=1):
             message += f"{i}. {answer}\n"
 
-        # Формируем кнопки с текстовыми ответами
-        keyboard = [[KeyboardButton(answer)] for answer in answers]
+        # Формируем кнопки с номерами ответов
+        keyboard = [[KeyboardButton(str(i))] for i in range(1, len(answers) + 1)]
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
 
         update.message.reply_text(message, reply_markup=reply_markup)
@@ -52,11 +52,17 @@ def check_answer(update, context):
 
     if current_question:
         correct_answer = current_question["prav"].strip(":").strip()
+        answer_index = int(user_answer) - 1 if user_answer.isdigit() else -1
         
-        if user_answer == correct_answer:
-            update.message.reply_text("Правильно!")
+        if 0 <= answer_index < len(current_question):
+            selected_answer = current_question.get(f'o{answer_index + 1}', '').strip()
+            
+            if selected_answer == correct_answer:
+                update.message.reply_text("Правильно!")
+            else:
+                update.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
         else:
-            update.message.reply_text(f"Неправильно. Правильный ответ: {correct_answer}")
+            update.message.reply_text("Выберите ответ из предложенных вариантов.")
     else:
         update.message.reply_text("Чтобы проверить ответ, сначала задайте вопрос командой /ask.")
 
