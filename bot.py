@@ -51,6 +51,7 @@ def ask_question(update, context):
         keyboard = [[KeyboardButton(str(i))] for i in range(1, len(answers) + 1)]
         reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True, row_width=len(answers))
 
+        # Отправляем сообщение с вопросом и кнопками ответов
         update.message.reply_text(message, reply_markup=reply_markup)
     else:
         update.message.reply_text("Извините, возникла проблема при загрузке вопроса.")
