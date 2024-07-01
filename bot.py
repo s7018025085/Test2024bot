@@ -45,8 +45,8 @@ def ask_question(update, context):
             return
         
         # Формируем сообщение с темой, номером вопроса, вопросом и ответами 
-        message = f"*Тема:* *{theme} *"
-        message += f"*Вопрос {question_number}:*\n\n<b>{question_text}</b>\n\n"
+        message = f"<i>Тема:</i> <i>{theme} </i>"
+        message += f"<i>Вопрос {question_number}:</i>\n\n<b>{question_text}</b>\n\n"
         message += "\n".join(answers)
 
         # Формируем список кнопок с номерами ответов в одной строке
